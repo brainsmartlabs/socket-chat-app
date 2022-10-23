@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Chat Application</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        button {
+            background-color: cadetblue;
+            padding: 10px 100px;
+            font-weight: bold;
+            font-size: 2rem;
+            color: white;
+            border-radius: 5px;
+        }
+
+        textarea {
+            padding: 10px 15px;
+            border: 2px solid black;
+            border-radius: 5px;
+            font-size: 30px;
+            font-style: italic;
+        }
+
+        div#display {
+            font-size: 1.5rem;
+            font-style: oblique;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="text-align : center">Chat Room</h1>
+
+        <textarea name="msg" id="msg" placeholder="Enter your message..." rows="5" cols="50"></textarea>
+        <br>
+        <button onclick="sendMessage()">Send</button>
+        <div id="display"></div>
+    </div>
+
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+        const username = prompt("Enter your Name");
+        const display = document.getElementById("display");
+        const chatBox = document.getElementById("msg");
+
+        const socket = io();
+        socket.emit("new user", username);
+
+        function sendMessage() {
+            let message = chatBox.value;
+            socket.emit("new message", message);
+
+            let tag = document.createElement("p");
+            let text;
+            if (message) {
+                text = document.createTextNode(username + " says:" + message);
+                tag.appendChild(text);
+                display.appendChild(tag);
+            }
+
+            chatBox.value = '';
+        }
+
+        socket.on('new message', (message) => {
+            let tag = document.createElement("p");
+            let text;
+
+            if (message[0] === '~') {
+                text = document.createTextNode(message);
+                tag.appendChild(text);
+                tag.setAttribute('style', 'color: cadetblue; font-weight: bold; font-style: normal');
+                display.appendChild(tag);
+            } else if (message[0] === '|') {
+                text = document.createTextNode(message);
+                tag.appendChild(text);
+                tag.setAttribute('style', 'color: red; font-weight: bold; font-style: normal');
+                display.appendChild(tag);
+            } else {
+                text = document.createTextNode(message);
+                tag.appendChild(text);
+                tag.setAttribute('style', 'color: dodgerblue');
+                display.appendChild(tag);
+            }
+        })
+    </script>
+</body>
+
+</html>
